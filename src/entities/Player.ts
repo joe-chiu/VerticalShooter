@@ -1,6 +1,7 @@
 import { Game } from '../core/Game';
 import { Constants } from '../core/Constants';
 import { Bullet } from './Bullet';
+import { AudioManager } from '../core/AudioManager';
 
 export class Player {
     private game: Game;
@@ -18,6 +19,7 @@ export class Player {
     private shootCooldown: number = 0.2; // Seconds
 
     private shipType: number = 0;
+    private invulnerableUntil: number = 0;
 
     constructor(game: Game, x: number, y: number, shipType: number = 0) {
         this.game = game;
@@ -96,8 +98,8 @@ export class Player {
         bullets.push(new Bullet(leftWingX, y, 0, -Constants.BULLET_SPEED, true));
         bullets.push(new Bullet(rightWingX, y, 0, -Constants.BULLET_SPEED, true));
 
-        // Play sound (placeholder)
-        // ResourceManager.getInstance().playAudio('shoot');
+        // Play sound
+        AudioManager.getInstance().playShootSound();
     }
 
 
@@ -108,6 +110,14 @@ export class Player {
             return true;
         }
         return false;
+    }
+
+    public setInvulnerable(duration: number): void {
+        this.invulnerableUntil = performance.now() / 1000 + duration;
+    }
+
+    public isInvulnerable(): boolean {
+        return performance.now() / 1000 < this.invulnerableUntil;
     }
 
     public getShipType(): number {

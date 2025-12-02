@@ -10,6 +10,7 @@ import { LevelManager } from '../core/LevelManager';
 import { Constants } from '../core/Constants';
 import { GameOverState } from './GameOverState';
 import { StageClearState } from './StageClearState';
+import { AudioManager } from '../core/AudioManager';
 
 export class PlayingState implements State {
     private game: Game;
@@ -33,10 +34,13 @@ export class PlayingState implements State {
 
     public enter(): void {
         console.log('Entering Playing State');
+        AudioManager.getInstance().resume();
+        AudioManager.getInstance().playBackgroundMusic();
     }
 
     public exit(): void {
         console.log('Exiting Playing State');
+        AudioManager.getInstance().stopBackgroundMusic();
     }
 
     public update(dt: number): void {
@@ -86,6 +90,10 @@ export class PlayingState implements State {
             if (this.player.tryUseBomb()) {
                 // Trigger animation
                 this.clusterBomb = new ClusterBomb();
+                AudioManager.getInstance().playBombSound();
+
+                // Clear all enemy bullets
+                this.bullets = this.bullets.filter(b => b.isPlayerBullet);
 
                 // Destroy all enemies
                 this.enemies.forEach(e => {
@@ -93,6 +101,10 @@ export class PlayingState implements State {
                     this.player.score += 100;
                 });
                 this.enemies = [];
+
+                // Set invulnerability: bomb animation (1s) + 5 seconds
+                this.player.setInvulnerable(6.0);
+
                 console.log("Bomb used! All enemies destroyed.");
             }
         }
@@ -110,6 +122,7 @@ export class PlayingState implements State {
                     bullet.active = false;
                     enemy.active = false; // One shot kill as per requirements
                     this.explosions.push(new Explosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2));
+                    AudioManager.getInstance().playExplosionSound();
                     this.player.score += 100;
                     break;
                 }
@@ -122,7 +135,9 @@ export class PlayingState implements State {
 
             if (this.checkRectCollision(bullet, this.player)) {
                 bullet.active = false;
-                this.handlePlayerHit();
+                if (!this.player.isInvulnerable()) {
+                    this.handlePlayerHit();
+                }
             }
         }
 
@@ -133,7 +148,9 @@ export class PlayingState implements State {
             if (this.checkRectCollision(enemy, this.player)) {
                 enemy.active = false;
                 this.explosions.push(new Explosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2));
-                this.handlePlayerHit();
+                if (!this.player.isInvulnerable()) {
+                    this.handlePlayerHit();
+                }
             }
         }
     }
