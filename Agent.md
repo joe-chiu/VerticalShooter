@@ -9,6 +9,7 @@ This project is a 2D vertical shooter game like Raiden. The player controls a cr
  - Player can move the craft using 4 arrow keys in all 4 directions
  - Player can shoot using the space key
  - Player can use "bomb" using the "Enter" key. Player starts with 3 "bombs" that allows them to use special move. When the bomb is used, a full screen cluster bomb animation is rendered and all enemies on screen are destroyed.
+ - When player is hit by a bullet, the craft explodes and player loses a life. Only after the explosion animation finishes and with 1 second delay, a new craft would be spawned at the bottom of the screen. The bomb count is reset to initial state. If player runs out of lives, the game transitions to "GameOver" state.
 
 ### Player weapon design
  - Player starts with a basic weapon that shoots two bullets from each wing that fly straight ahead 

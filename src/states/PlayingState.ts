@@ -25,6 +25,9 @@ export class PlayingState implements State {
     private gameTimer: number = 0;
     private readonly LEVEL_DURATION: number = 300; // 5 minutes in seconds
 
+    private respawnTimer: number = 0;
+    private isRespawning: boolean = false;
+
     constructor(game: Game, shipType: number = 0) {
         this.game = game;
         this.player = new Player(game, Constants.SCREEN_WIDTH / 2 - Constants.PLAYER_WIDTH / 2, Constants.SCREEN_HEIGHT - 100, shipType);
@@ -54,7 +57,32 @@ export class PlayingState implements State {
 
         this.tileMap.update(dt);
         this.levelManager.update(dt, this.enemies);
-        this.player.update(dt, this.bullets);
+
+        // Handle respawn timer
+        if (this.isRespawning) {
+            this.respawnTimer += dt;
+            if (this.respawnTimer >= 1.0) { // Explosion (0.5s) + delay (0.5s)
+                this.isRespawning = false;
+                this.respawnTimer = 0;
+
+                // Respawn player at bottom center
+                this.player.x = Constants.SCREEN_WIDTH / 2 - Constants.PLAYER_WIDTH / 2;
+                this.player.y = Constants.SCREEN_HEIGHT - 100;
+
+                // Reset bombs to initial state
+                this.player.bombs = Constants.PLAYER_BOMBS;
+
+                // Grant brief invulnerability after respawn
+                this.player.setInvulnerable(3.0);
+
+                console.log('Player Respawned! Lives:', this.player.lives, 'Bombs:', this.player.bombs);
+            }
+        }
+
+        // Only update player if not respawning
+        if (!this.isRespawning) {
+            this.player.update(dt, this.bullets);
+        }
 
         // Update Bullets
         this.bullets.forEach(b => b.update(dt));
@@ -76,8 +104,10 @@ export class PlayingState implements State {
             }
         }
 
-        // Collision Detection
-        this.checkCollisions();
+        // Collision Detection (skip if respawning)
+        if (!this.isRespawning) {
+            this.checkCollisions();
+        }
 
         // Check Game Over
         if (this.player.lives <= 0) {
@@ -158,8 +188,16 @@ export class PlayingState implements State {
     private handlePlayerHit(): void {
         this.player.lives--;
         this.explosions.push(new Explosion(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2));
-        // Reset position or invulnerability? For now just simple hit.
-        console.log('Player Hit! Lives:', this.player.lives);
+
+        if (this.player.lives > 0) {
+            // Start respawn timer (explosion will finish in 0.5s, then 1s delay)
+            this.isRespawning = true;
+            this.respawnTimer = 0;
+
+            console.log('Player Hit! Lives:', this.player.lives, '- Respawning in 1.5s');
+        } else {
+            console.log('Player Hit! Lives: 0 - Game Over');
+        }
     }
 
     private checkRectCollision(r1: { x: number, y: number, width: number, height: number },
@@ -179,7 +217,10 @@ export class PlayingState implements State {
 
         this.tileMap.render(ctx);
 
-        this.player.render(ctx);
+        // Only render player if not respawning
+        if (!this.isRespawning) {
+            this.player.render(ctx);
+        }
 
         this.bullets.forEach(b => b.render(ctx));
         this.enemies.forEach(e => e.render(ctx));
