@@ -30,7 +30,7 @@ export class PlayerSelectState implements State {
 
         if (input.isPressed('Enter') || input.isPressed('Space')) {
             console.log(`Ship ${this.selectedShip} selected`);
-            this.game.getStateMachine().changeState(new StageIntroState(this.game));
+            this.game.getStateMachine().changeState(new StageIntroState(this.game, this.selectedShip));
         }
     }
 
@@ -51,13 +51,40 @@ export class PlayerSelectState implements State {
             const x = width / 4 * (i + 1);
             const y = height / 2;
 
+            // Draw selection box
             if (i === this.selectedShip) {
-                ctx.fillStyle = 'yellow';
-                ctx.fillRect(x - 30, y - 30, 60, 60);
-            } else {
-                ctx.fillStyle = 'gray';
-                ctx.fillRect(x - 20, y - 20, 40, 40);
+                ctx.strokeStyle = 'yellow';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x - 40, y - 40, 80, 80);
             }
+
+            // Draw Ship
+            const colors = ['cyan', 'lime', 'magenta'];
+            ctx.fillStyle = colors[i];
+
+            ctx.beginPath();
+            // Simple triangle shape matching Player.render
+            // We can make them slightly different per type if we want, but color is the main differentiator for now
+            // Type 0: Standard
+            // Type 1: Narrow
+            // Type 2: Wide
+
+            if (i === 0) {
+                ctx.moveTo(x, y - 16);
+                ctx.lineTo(x + 16, y + 16);
+                ctx.lineTo(x - 16, y + 16);
+            } else if (i === 1) {
+                ctx.moveTo(x, y - 20);
+                ctx.lineTo(x + 10, y + 16);
+                ctx.lineTo(x - 10, y + 16);
+            } else {
+                ctx.moveTo(x, y - 12);
+                ctx.lineTo(x + 20, y + 16);
+                ctx.lineTo(x - 20, y + 16);
+            }
+
+            ctx.closePath();
+            ctx.fill();
         }
 
         ctx.fillStyle = 'white';

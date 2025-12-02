@@ -1,6 +1,6 @@
 # Project Overview
 
-This project is a vertical shooter game like Raiden. 
+This project is a 2D vertical shooter game like Raiden. The player controls a craft and fires at enemies from bottom to top. Each level contains a title based map where a tile-based map is used to represent the environment. The tile-based map would scroll at a constant speed from bottom to top. Each level should be about 5 minutes long. The player craft is an pixel art that is 32x32 pixels in size. It can shoot bullets of various disperse patterns. See the Player design section for details.
 
 # Game design
 
@@ -8,20 +8,18 @@ This project is a vertical shooter game like Raiden.
  - Player has 3 lives
  - Player can move the craft using 4 arrow keys in all 4 directions
  - Player can shoot using the space key
- - Player can use special move using the "Enter" key
- - Player starts with 3 "bombs" that allows them to use special move. Player can acquire more bombs during game play
- - Player can pause the game using the "p" key.
- - Player can resume the game using the "p" key while paused.
+ - Player can use "bomb" using the "Enter" key. Player starts with 3 "bombs" that allows them to use special move. When the bomb is used, a full screen cluster bomb animation is rendered and all enemies on screen are destroyed.
+
+### Player weapon design
+ - Player starts with a basic weapon that shoots two bullets from each wing that fly straight ahead 
 
 ## Enemy design
- - 5 types of enemies
+ - 2 types of enemies. 
+ - Enemy 1 is a fast moving enemy that shoots bullets at random intervals
+ - Enemy 2 is a slow moving enemy that shoots bullets in a straight line
  - Each enemy has different movement patterns
- - Each enemy has different health
- - Each enemy has different score
- - Each enemy has different speed
- - Each enemy has different size
- - Each enemy has different color
- - Each enemy has different sprite
+ - All the enemy would be destroyed by a single bullet
+ - Each enemy would show an explosion animation upon death
 
 ## Level design
  - 3 levels
@@ -35,11 +33,17 @@ This project is a vertical shooter game like Raiden.
  - Explosion sound
  - Special move sound
 
+## HUD design
+ - Show # of lives left
+ - Show # of bombs left
+ - Show score
+
 # Technology
 
 This project is a web application built using TypeScript, HTML and CSS. It is built using Vite. 
 Do not use any framework like React, only TypeScript, Canvas and browser's builtin APIs.
 You can use assets like PNG for sprite sheets and assets like audio files for sound effects.
+You should generate a sprite sheet for all the different tiles for the tile-based map, and the create an array on which tile to use for each of the position on the map to make a coherent and interesting tile-based map.
 
 # Struccture
 

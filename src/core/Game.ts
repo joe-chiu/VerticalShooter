@@ -35,8 +35,8 @@ export class Game {
     }
 
     private update(dt: number): void {
-        this.inputManager.update();
         this.stateMachine.update(dt);
+        this.inputManager.update();
     }
 
     private render(): void {
