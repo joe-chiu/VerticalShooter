@@ -303,4 +303,33 @@ export class AudioManager {
         osc1.stop(now + 1.0);
         osc2.stop(now + 1.0);
     }
+
+    public playPowerUpSound(): void {
+        const now = this.audioContext.currentTime;
+
+        // Exciting ascending arpeggio
+        const notes = [
+            { freq: 523.25, time: 0 },      // C5
+            { freq: 659.25, time: 0.08 },   // E5
+            { freq: 783.99, time: 0.16 },   // G5
+            { freq: 1046.50, time: 0.24 },  // C6
+        ];
+
+        notes.forEach(({ freq, time }) => {
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+
+            osc.type = 'square';
+            osc.frequency.value = freq;
+
+            gain.gain.setValueAtTime(0.4, now + time);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + time + 0.2);
+
+            osc.connect(gain);
+            gain.connect(this.sfxGain);
+
+            osc.start(now + time);
+            osc.stop(now + time + 0.2);
+        });
+    }
 }

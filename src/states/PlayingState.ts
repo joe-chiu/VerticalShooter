@@ -11,6 +11,7 @@ import { Constants } from '../core/Constants';
 import { GameOverState } from './GameOverState';
 import { StageClearState } from './StageClearState';
 import { AudioManager } from '../core/AudioManager';
+import { PowerUp } from '../entities/PowerUp';
 
 export class PlayingState implements State {
     private game: Game;
@@ -27,6 +28,10 @@ export class PlayingState implements State {
 
     private respawnTimer: number = 0;
     private isRespawning: boolean = false;
+
+    private powerUps: PowerUp[] = [];
+    private powerUpSpawnTimer: number = 0;
+    private readonly POWERUP_SPAWN_INTERVAL: number = 15; // Spawn every 15 seconds
 
     constructor(game: Game, shipType: number = 0) {
         this.game = game;
@@ -102,6 +107,20 @@ export class PlayingState implements State {
             if (!this.clusterBomb.active) {
                 this.clusterBomb = null;
             }
+        }
+
+        // Update Power-ups
+        this.powerUps.forEach(p => p.update(dt));
+        this.powerUps = this.powerUps.filter(p => p.active);
+
+        // Spawn power-ups
+        this.powerUpSpawnTimer += dt;
+        if (this.powerUpSpawnTimer >= this.POWERUP_SPAWN_INTERVAL) {
+            this.powerUpSpawnTimer = 0;
+            const y = Math.random() * (Constants.SCREEN_HEIGHT * 0.6); // Spawn in top 60% of screen
+            const direction = Math.random() < 0.5 ? 1 : -1; // Random direction
+            const x = direction > 0 ? -Constants.POWERUP_WIDTH : Constants.SCREEN_WIDTH;
+            this.powerUps.push(new PowerUp(x, y, direction));
         }
 
         // Collision Detection (skip if respawning)
@@ -183,6 +202,27 @@ export class PlayingState implements State {
                 }
             }
         }
+
+        // Power-ups hitting Player
+        for (const powerUp of this.powerUps) {
+            if (!powerUp.active) continue;
+
+            if (this.checkRectCollision(powerUp, this.player)) {
+                powerUp.active = false;
+
+                // Award score
+                this.player.score += Constants.POWERUP_SCORE;
+
+                // Increase weapon level or add life
+                if (this.player.weaponLevel < Constants.MAX_WEAPON_LEVEL) {
+                    this.player.increaseWeaponLevel();
+                    console.log('Power-up collected! Weapon level:', this.player.weaponLevel);
+                } else {
+                    this.player.addLife();
+                    console.log('Power-up collected! Extra life granted. Lives:', this.player.lives);
+                }
+            }
+        }
     }
 
     private handlePlayerHit(): void {
@@ -225,6 +265,7 @@ export class PlayingState implements State {
         this.bullets.forEach(b => b.render(ctx));
         this.enemies.forEach(e => e.render(ctx));
         this.explosions.forEach(e => e.render(ctx));
+        this.powerUps.forEach(p => p.render(ctx));
 
         if (this.clusterBomb) {
             this.clusterBomb.render(ctx);

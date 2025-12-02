@@ -20,6 +20,7 @@ export class Player {
 
     private shipType: number = 0;
     private invulnerableUntil: number = 0;
+    public weaponLevel: number = 0; // 0-3
 
     constructor(game: Game, x: number, y: number, shipType: number = 0) {
         this.game = game;
@@ -90,13 +91,55 @@ export class Player {
     }
 
     private shoot(bullets: Bullet[]): void {
-        // Basic weapon: two bullets from wings
-        const leftWingX = this.x;
-        const rightWingX = this.x + this.width - Constants.BULLET_WIDTH;
+        const centerX = this.x + this.width / 2;
         const y = this.y;
 
-        bullets.push(new Bullet(leftWingX, y, 0, -Constants.BULLET_SPEED, true));
-        bullets.push(new Bullet(rightWingX, y, 0, -Constants.BULLET_SPEED, true));
+        switch (this.weaponLevel) {
+            case 0: // Basic: 2 bullets straight
+                bullets.push(new Bullet(this.x, y, 0, -Constants.BULLET_SPEED, true));
+                bullets.push(new Bullet(this.x + this.width - Constants.BULLET_WIDTH, y, 0, -Constants.BULLET_SPEED, true));
+                break;
+
+            case 1: // Level 1: 4 bullets straight
+                bullets.push(new Bullet(this.x - 8, y, 0, -Constants.BULLET_SPEED, true));
+                bullets.push(new Bullet(this.x, y, 0, -Constants.BULLET_SPEED, true));
+                bullets.push(new Bullet(this.x + this.width - Constants.BULLET_WIDTH, y, 0, -Constants.BULLET_SPEED, true));
+                bullets.push(new Bullet(this.x + this.width + 4, y, 0, -Constants.BULLET_SPEED, true));
+                break;
+
+            case 2: // Level 2: 6 bullets radiating outwards
+                for (let i = 0; i < 6; i++) {
+                    const angle = -Math.PI / 2 + (i - 2.5) * (Math.PI / 8);
+                    const vx = Math.cos(angle) * Constants.BULLET_SPEED;
+                    const vy = Math.sin(angle) * Constants.BULLET_SPEED;
+                    bullets.push(new Bullet(centerX - Constants.BULLET_WIDTH / 2, y, vx, vy, true));
+                }
+                break;
+
+            case 3: // Level 3: 10 bullets (4 straight + 3 on each side)
+                // 4 straight
+                bullets.push(new Bullet(this.x - 12, y, 0, -Constants.BULLET_SPEED, true));
+                bullets.push(new Bullet(this.x - 4, y, 0, -Constants.BULLET_SPEED, true));
+                bullets.push(new Bullet(this.x + this.width - Constants.BULLET_WIDTH + 4, y, 0, -Constants.BULLET_SPEED, true));
+                bullets.push(new Bullet(this.x + this.width + 8, y, 0, -Constants.BULLET_SPEED, true));
+
+                // 3 on left side
+                for (let i = 0; i < 3; i++) {
+                    const angle = -Math.PI / 2 - (i + 1) * (Math.PI / 10);
+                    const vx = Math.cos(angle) * Constants.BULLET_SPEED;
+                    const vy = Math.sin(angle) * Constants.BULLET_SPEED;
+                    bullets.push(new Bullet(centerX - Constants.BULLET_WIDTH / 2, y, vx, vy, true));
+                }
+
+                // 3 on right side
+                for (let i = 0; i < 3; i++) {
+                    const angle = -Math.PI / 2 + (i + 1) * (Math.PI / 10);
+                    const vx = Math.cos(angle) * Constants.BULLET_SPEED;
+                    const vy = Math.sin(angle) * Constants.BULLET_SPEED;
+                    bullets.push(new Bullet(centerX - Constants.BULLET_WIDTH / 2, y, vx, vy, true));
+                }
+                break;
+        }
 
         // Play sound
         AudioManager.getInstance().playShootSound();
@@ -122,5 +165,15 @@ export class Player {
 
     public getShipType(): number {
         return this.shipType;
+    }
+
+    public increaseWeaponLevel(): void {
+        if (this.weaponLevel < Constants.MAX_WEAPON_LEVEL) {
+            this.weaponLevel++;
+        }
+    }
+
+    public addLife(): void {
+        this.lives++;
     }
 }

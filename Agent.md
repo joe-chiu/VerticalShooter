@@ -13,6 +13,11 @@ This project is a 2D vertical shooter game like Raiden. The player controls a cr
 
 ### Player weapon design
  - Player starts with a basic weapon that shoots two bullets from each wing that fly straight ahead 
+ - There are 3 additional weapon power up levels:
+  - Powerup Level 1: shoots 4 bullets from each wing that fly straight ahead
+  - Powerup Level 2: shoots 6 bullets from each wing that radiate outwards
+  - Powerup Level 3: shoots 10 bullets from each wing that 4 fly straight ahead and 3 on each side radiating outwards 
+
 
 ## Enemy design
  - 2 types of enemies. 
@@ -38,6 +43,12 @@ This project is a 2D vertical shooter game like Raiden. The player controls a cr
  - Show # of lives left
  - Show # of bombs left
  - Show score
+
+## Power up
+ - Through out the level, at fixed location, a power up would spawn and move across the screen
+ - When the player collides with the power up, the power up would disappear and the player's weapon level would increase by one
+ - The player would earn score from power up
+ - If the player is already at maximum power level, the power up would give player an extra life
 
 # Technology
 

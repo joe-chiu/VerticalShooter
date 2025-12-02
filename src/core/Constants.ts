@@ -10,6 +10,12 @@ export const Constants = {
     ENEMY_WIDTH: 32,
     ENEMY_HEIGHT: 32,
 
+    POWERUP_WIDTH: 24,
+    POWERUP_HEIGHT: 24,
+    POWERUP_SPEED: 100,
+    POWERUP_SCORE: 500,
+    MAX_WEAPON_LEVEL: 3,
+
     // Game Balance
     PLAYER_LIVES: 3,
     PLAYER_BOMBS: 3,
@@ -20,4 +26,5 @@ export const Constants = {
     COLOR_ENEMY_2: 'orange',
     COLOR_BULLET_PLAYER: 'yellow',
     COLOR_BULLET_ENEMY: 'pink',
+    COLOR_POWERUP: 'gold',
 };
